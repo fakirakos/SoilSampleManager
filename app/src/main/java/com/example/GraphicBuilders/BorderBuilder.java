@@ -2,24 +2,26 @@ package com.example.GraphicBuilders;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.PolylineBuilder;
+import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 
 public class BorderBuilder   {
-    PolylineBuilder polylineBuilder = null;
-    Graphic temporaryGraphic = null;
-
+    PolylineBuilder polylineBuilder=null;
+    Graphic temporaryGraphic=null;
 
     // Builder held as member variable
-    public BorderBuilder (Feature roadFeature) {
-        // Set initial state of the builder based on an existing geometry
-        polylineBuilder = new PolylineBuilder((Polyline) roadFeature.getGeometry());
+    public BorderBuilder (PointCollection points) {
+        // Set initial state of the builder based on the created PointCollection
+        polylineBuilder = new PolylineBuilder(points, SpatialReferences.getWgs84());
         // Set up a temporary graphic to draw the geometry
         SimpleLineSymbol roadSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, 0xFFFF0000, 1f);
         temporaryGraphic = new Graphic(polylineBuilder.toGeometry(), roadSymbol);
+
     }
 
 
@@ -40,7 +42,8 @@ public class BorderBuilder   {
         temporaryGraphic.setGeometry(getCurrentGeometry());
     }
 
-    public Graphic getTemporaryGraphic(Graphic temporaryGraphic){
+    public Graphic getTemporaryGraphic(){
+
         return temporaryGraphic;
     }
 }
