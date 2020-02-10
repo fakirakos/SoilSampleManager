@@ -2,6 +2,7 @@ package com.example.MapActivities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -19,18 +20,28 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapView;
-import com.example.DrawerUtilities.DrawerUtil;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.example.GraphicBuilders.BorderBuilder;
+import com.example.GraphicBuilders.FieldBuilder;
+import com.example.MenusAndUtilities.DrawerUtil;
+import com.example.MenusAndUtilities.MapNameDialog;
+import com.example.Models.FieldModel;
 import com.example.soilsamplemanager.R;
 
+import java.util.UUID;
 
-public class MapActivity extends AppCompatActivity {
+
+public class MapActivity extends AppCompatActivity implements MapNameDialog.DialogHolderListener{
 
     private static PointCollection borderPoints;
     private static GraphicsOverlay tempOverlay;
+    private static GraphicsOverlay fieldOverlay;
+    private static GraphicsOverlay cropOverlay;
+    private static GraphicsOverlay markerOverlay;
     private MapView mMapView;
     private LocationDisplay mLocationDisplay;
     private double longitude;
@@ -41,6 +52,11 @@ public class MapActivity extends AppCompatActivity {
     private Button buttonOk;
     private Button buttonCancel;
     BorderBuilder myBuilder;
+    FieldBuilder myPolygonBuilder;
+    FieldModel currentMapModel;
+    private static boolean fieldDialog;
+    private static String whichDialog;
+
 
 
 
@@ -50,15 +66,36 @@ public class MapActivity extends AppCompatActivity {
         borderPoints=new PointCollection(SpatialReferences.getWgs84());
         drawingStatus=false;
         drawingInitiated=false;
+        fieldDialog=false;
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         buttonOk= findViewById(R.id.buttonOk);
         buttonCancel= findViewById(R.id.buttonCancel);
-        setSupportActionBar(myToolbar);
+        buttonOk.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                if(fieldDialog) {
+                    openDialog("Field");
+                }
+                else{
+                    //TODO Crop Generation (check all borderpoints against field(?) then create inner polygon
+                }
+            }
+        });
+        buttonCancel.setOnClickListener(new View.OnClickListener(){
+             @Override
+             public void onClick(View view) {
+                cancelDrawing();
 
+             }
+        }
+        );
+        setSupportActionBar(myToolbar);
         DrawerUtil.getDrawer(this,myToolbar);
         tempOverlay = new GraphicsOverlay();
-
+        fieldOverlay = new GraphicsOverlay();
+        cropOverlay = new GraphicsOverlay();
+        markerOverlay = new GraphicsOverlay();
         // inflate MapView from layout
         mMapView = findViewById(R.id.mapView);
         // create a map with the BasemapType topographic
@@ -67,6 +104,9 @@ public class MapActivity extends AppCompatActivity {
         mMapView.setMap(map);
         setupLocationDisplay();
         mMapView.getGraphicsOverlays().add(tempOverlay);
+        mMapView.getGraphicsOverlays().add(fieldOverlay);
+        mMapView.getGraphicsOverlays().add(cropOverlay);
+        mMapView.getGraphicsOverlays().add(markerOverlay);
         mLocationDisplay.addLocationChangedListener(locationChangedEvent -> {
             LocationDataSource.Location location = mLocationDisplay.getLocation();
             if (location != null) {
@@ -86,6 +126,16 @@ public class MapActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void cancelDrawing() {
+        drawingStatus=false;
+        drawingInitiated=false;
+        borderPoints.clear();
+        myBuilder=null;
+        buttonCancel.setVisibility(View.GONE);
+        buttonOk.setVisibility(View.GONE);
+        tempOverlay.getGraphics().clear();
     }
 
     @Override
@@ -156,6 +206,18 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+        public void openDialog(String whichDialog){
+            switch(whichDialog){
+                case "Field":
+                    MapNameDialog mapNameDialog = new MapNameDialog();
+                    mapNameDialog.show(getSupportFragmentManager(), "test dialog");
+                    break;
+                case "Marker":
+                //TODO marker dialog
+                    break;
+            }
+        }
+
         private Point assignLocation(Point point) {
             myLocation = point;
             Log.i("MainActivity", "My device location is " + point.getX() + " " + point.getY());
@@ -167,6 +229,7 @@ public class MapActivity extends AppCompatActivity {
 
         private void drawingTool(Point myLocation){
             myBuilder.addPointToEnd(myLocation);
+            borderPoints.add(myLocation);
             myBuilder.drawLatestGeometry(tempOverlay);
         }
 
@@ -175,7 +238,7 @@ public class MapActivity extends AppCompatActivity {
             borderPoints.add(myLocation);
             myBuilder=new BorderBuilder(getBorderPoints());
             myBuilder.drawLatestGeometry(tempOverlay);
-            mMapView.getGraphicsOverlays().get(0).getGraphics().add(myBuilder.getTemporaryGraphic()); //TODO WRITTEN NOT TESTED START HERE
+            mMapView.getGraphicsOverlays().get(0).getGraphics().add(myBuilder.getTemporaryGraphic());
             setDrawingInitiated(false);
             setDrawingStatus(true);
             buttonOk.setVisibility(View.VISIBLE);
@@ -206,6 +269,41 @@ public class MapActivity extends AppCompatActivity {
 
         return borderPoints;
     }
-}
 
-//TODO add to graphics overlay etc
+
+    @Override
+    public void applyField(String mapName) {
+        String uniqueFieldId= UUID.randomUUID().toString();
+        currentMapModel=new FieldModel(getBorderPoints(),uniqueFieldId,mapName);
+        myPolygonBuilder=new FieldBuilder(getBorderPoints());
+        tempOverlay.getGraphics().add(myPolygonBuilder.getTempPolygonGraphic());
+        drawingInitiated=false;
+        drawingStatus=false;
+        myBuilder=null;
+        buttonCancel.setVisibility(View.GONE);
+        buttonOk.setVisibility(View.GONE);
+
+    }
+
+    public void startMarkerDialog(String dialogString){
+        openDialog(dialogString);
+    }
+
+    //Creates and adds the point marker to the map
+    //TODO identify point on click and create callout with dialog information
+    public static void markerMaker(){
+        SimpleMarkerSymbol myMarker= new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10);
+        Graphic markerGraphic= new Graphic(myLocation, myMarker);
+        markerOverlay.getGraphics().add(markerGraphic);
+    }
+
+    public static boolean isFieldDialog() {
+        return fieldDialog;
+    }
+
+    public static void setFieldDialog(boolean fieldDialog) {
+        MapActivity.fieldDialog = fieldDialog;
+    }
+
+
+}

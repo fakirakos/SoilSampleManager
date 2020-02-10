@@ -1,4 +1,4 @@
-package com.example.DrawerUtilities;
+package com.example.MenusAndUtilities;
 
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -60,11 +60,14 @@ public class DrawerUtil {
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem.getIdentifier() == 7) {
+                        if (drawerItem.getIdentifier() == 101) {
                             if(MapActivity.isDrawingStatus()==false){
                                 MapActivity.setDrawingInitiated(true);
                                 Log.e("warning", "drawer button pressed");
                             }
+                        }
+                        if (drawerItem.getIdentifier()==103){
+                            activity.startMarkerDialog("Marker");
                         }
                         return false;
                     }
