@@ -3,6 +3,7 @@ package com.example.MenusAndUtilities;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.MapActivities.MapActivity;
 import com.example.soilsamplemanager.R;
@@ -67,7 +68,12 @@ public class DrawerUtil {
                             }
                         }
                         if (drawerItem.getIdentifier()==103){
-                            activity.startMarkerDialog("Marker");
+                            if(activity.isLocationWithinField(activity.getMyLocation())) {
+                                activity.openDialog("Marker");
+                            }
+                            else{
+                                Toast.makeText(activity, "The marker must be within the bounds of the field", Toast.LENGTH_SHORT);
+                            }
                         }
                         return false;
                     }

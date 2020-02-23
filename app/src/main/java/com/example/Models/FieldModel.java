@@ -28,4 +28,17 @@ public class FieldModel {
         this.cropList= Collections.emptyList();
         this.markerList=Collections.emptyList();
     }
+
+    public void addMarker(MarkerModel marker){
+        markerList.add(marker);
+
+    }
+
+    public List<MarkerModel> getMarkerList() {
+        return markerList;
+    }
+
+    public void setMarkerList(List<MarkerModel> markerList) {
+        this.markerList = markerList;
+    }
 }

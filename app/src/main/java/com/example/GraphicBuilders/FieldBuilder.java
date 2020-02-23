@@ -35,7 +35,9 @@ public class FieldBuilder {
 
     }
 
-
+    public Polygon getFieldPolygon() {
+        return fieldPolygon;
+    }
 }
 
 //
