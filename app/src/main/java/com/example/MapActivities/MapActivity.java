@@ -5,16 +5,17 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
@@ -84,7 +85,6 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO fix the if statement to use whichDialog instead of a boolean to work with all 3 states
                 if (fieldDialog) {
                     openDialog("Field");
                 } else {
@@ -143,6 +143,7 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
     private void cancelDrawing() {
         drawingStatus = false;
         drawingInitiated = false;
+        fieldDialog=false;
         borderPoints.clear();
         myBuilder = null;
         buttonCancel.setVisibility(View.GONE);

@@ -1,9 +1,10 @@
 package com.example.MenusAndUtilities;
 
-import android.support.v7.widget.Toolbar;
+import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.MapActivities.MapActivity;
 import com.example.soilsamplemanager.R;
@@ -62,9 +63,14 @@ public class DrawerUtil {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 101) {
-                            if(MapActivity.isDrawingStatus()==false){
-                                MapActivity.setDrawingInitiated(true);
-                                Log.e("warning", "drawer button pressed");
+                            if(!activity.isFieldModelInitialized()) {
+                                if (MapActivity.isDrawingStatus() == false) {
+                                    MapActivity.setDrawingInitiated(true);
+                                    Log.e("warning", "drawer button pressed");
+                                }
+                            }
+                            else{
+                                Toast.makeText(activity, "You have already drawn a field", Toast.LENGTH_SHORT);
                             }
                         }
                         if (drawerItem.getIdentifier()==103){

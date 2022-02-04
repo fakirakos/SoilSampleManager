@@ -5,16 +5,36 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import androidx.fragment.app.DialogFragment;
 
 import com.example.soilsamplemanager.R;
 
 public class MapNameDialog extends DialogFragment {
         private EditText editTextMapName;
         private DialogHolderListener listener;
+
+        public MapNameDialog() {
+
+        }
+
+
+        public static MapNameDialog newInstance(String title) {
+
+            MapNameDialog frag = new MapNameDialog();
+
+            Bundle args = new Bundle();
+
+            args.putString("title", title);
+
+            frag.setArguments(args);
+
+            return frag;
+
+        }
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -53,7 +73,9 @@ public class MapNameDialog extends DialogFragment {
             }
         }
 
-        public interface DialogHolderListener{
+
+
+    public interface DialogHolderListener{
             void applyField(String mapName);
         }
 }
