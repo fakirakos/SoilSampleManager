@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -18,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.MapActivities.MapActivity;
+import com.example.Models.UserModel;
 import com.example.soilsamplemanager.R;
+
+import java.util.UUID;
 
 public class SignUpActivity extends AppCompatActivity {
         /**
@@ -26,8 +28,7 @@ public class SignUpActivity extends AppCompatActivity {
          */
         SignUpValidation user;
         private UserRegisterTask mAuthTask = null;
-        private ConstraintLayout mRegisterForm;
-        private EditText username;
+        private ConstraintLayout mRegisterForm = findViewById(R.id.registerFormView);
         private EditText email;
         private EditText password;
         private EditText verifyPassword;
@@ -39,40 +40,22 @@ public class SignUpActivity extends AppCompatActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_sign_up);
-            username = (EditText) findViewById(R.id.usernameEditText);
-            username.requestFocus();
-            email = (EditText) findViewById(R.id.emailEditText);
-            password = (EditText) findViewById(R.id.passwordEditText);
-            verifyPassword = (EditText) findViewById(R.id.verifyPasswordEditText);
-            Button registerAndLogin = (Button) findViewById(R.id.registerAndLoginButton);
-            TextView haveAnAccount = (TextView) findViewById(R.id.goBackToLoginTextView);
-            loadingTextView = (TextView) findViewById(R.id.loadingTextView);
-            mProgressView = (ProgressBar) findViewById(R.id.progressBar);
-            mRegisterForm = (ConstraintLayout) findViewById(R.id.registerFormView);
-            verifyPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                        attemptRegister();
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            registerAndLogin.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            email = findViewById(R.id.emailEditText);
+            password = findViewById(R.id.passwordEditText);
+            verifyPassword = findViewById(R.id.verifyPasswordEditText);
+            Button registerAndLogin = findViewById(R.id.registerAndLoginButton);
+            TextView haveAnAccount = findViewById(R.id.goBackToLoginTextView);
+            loadingTextView = findViewById(R.id.loadingTextView);
+            mProgressView = findViewById(R.id.progressBar);
+            verifyPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
+                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                     attemptRegister();
+                    return true;
                 }
-
-
+                return false;
             });
-            haveAnAccount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    goToLoginActivity();
-                }
-            });
+            registerAndLogin.setOnClickListener(v -> attemptRegister());
+            haveAnAccount.setOnClickListener(view -> goToLoginActivity());
         }
 
         private void hideKeyboard(){
@@ -91,40 +74,19 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             // Reset errors.
-            username.setError(null);
             email.setError(null);
             password.setError(null);
             verifyPassword.setError(null);
 
             // Store values at the time of the login attempt. s is for string
             String semail = email.getText().toString();
-            String susername = username.getText().toString();
             String spassword = password.getText().toString();
             String sverify = verifyPassword.getText().toString();
-            user = new SignUpValidation(susername, semail, spassword, sverify);
+            user = new SignUpValidation(semail, spassword, sverify);
 
             boolean cancel = false;
             View focusView = null;
 
-            // Check for a valid username, if the user entered one.
-
-            if (!user.isUsernameNotEmpty()) {
-                username.setError("Please enter a username");
-                focusView = username;
-                cancel = true;
-            } else if (!user.UsernameContainsOnlyNumbersAndLetters()) {
-                username.setError("Your username should only contain letters and numbers");
-                focusView = username;
-                cancel = true;
-            } else if (!user.isUsernameLengthEnough()) {
-                username.setError("Your username should be more than 5 characters.");
-                focusView = username;
-                cancel = true;
-            } else if (!user.isUsernameLengthLessThanAmount()) {
-                username.setError("Your username should be less than 25 characters.");
-                focusView = username;
-                cancel = true;
-            }
 
             // Check for a valid email address.
 
@@ -170,7 +132,7 @@ public class SignUpActivity extends AppCompatActivity {
                 // Show a progress spinner, and kick off a background task to
                 // perform the user login attempt.
 
-                mAuthTask = new UserRegisterTask(susername, semail, spassword);
+                mAuthTask = new UserRegisterTask(semail, spassword);
                 mAuthTask.execute((Void) null);
             }
         }
@@ -187,12 +149,10 @@ public class SignUpActivity extends AppCompatActivity {
          */
         public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
 
-            private final String mUsername;
             private final String mEmail;
             private final String mPassword;
 
-            UserRegisterTask(String username, String email, String password) {
-                mUsername = username;
+            UserRegisterTask(String email, String password) {
                 mEmail = email;
                 mPassword = password;
             }
@@ -213,9 +173,9 @@ public class SignUpActivity extends AppCompatActivity {
 
 
                 try {
-                    AccountModel accountModel = new AccountModel(UUID.randomUUID().toString(),mUsername,mEmail,mPassword);
-                    AccountController accountController = new AccountController();
-                    accountController.createAccount(accountModel);
+                    UserModel accountModel = new UserModel(UUID.randomUUID().toString(),mEmail,mPassword);
+                    UserController userController = new UserController();
+                    userController.createUser(accountModel);
                 } catch (Exception e) {
 
                     return false;
@@ -258,5 +218,5 @@ public class SignUpActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-    }
+
 }

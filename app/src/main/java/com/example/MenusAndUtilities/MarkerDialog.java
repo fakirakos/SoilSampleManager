@@ -30,25 +30,18 @@ public class MarkerDialog extends DialogFragment {
         View dialogView = inflater.inflate(R.layout.marker_save_dialog_layout, null);
         builder.setView(dialogView)
                 .setTitle("Save Map")
-                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        String markerPH=editTextPH.getText().toString().trim();
-                        String markerEC=editTextEC.getText().toString().trim();
-                        String markerNitrogen=editTextNitrogen.getText().toString().trim();
-                        String markerPotassium=editTextPotassium.getText().toString().trim();
-                        String markerPhosphorus=editTextPhosphorus.getText().toString().trim();
-                        String markerCalcium=editTextCalcium.getText().toString().trim();
-                        String markerMagnesium=editTextMagnesium.getText().toString().trim();
+                .setPositiveButton("Done", (dialog, id) -> {
+                    String markerPH=editTextPH.getText().toString().trim();
+                    String markerEC=editTextEC.getText().toString().trim();
+                    String markerNitrogen=editTextNitrogen.getText().toString().trim();
+                    String markerPotassium=editTextPotassium.getText().toString().trim();
+                    String markerPhosphorus=editTextPhosphorus.getText().toString().trim();
+                    String markerCalcium=editTextCalcium.getText().toString().trim();
+                    String markerMagnesium=editTextMagnesium.getText().toString().trim();
 
-                        listener.markerMaker(markerPH, markerEC, markerNitrogen, markerPotassium, markerPhosphorus, markerCalcium, markerMagnesium);
-                    }
+                    listener.markerMaker(markerPH, markerEC, markerNitrogen, markerPotassium, markerPhosphorus, markerCalcium, markerMagnesium);
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        MarkerDialog.this.getDialog().cancel();
-                    }
-                });
+                .setNegativeButton("Cancel", (dialog, id) -> MarkerDialog.this.getDialog().cancel());
 
         editTextPH= dialogView.findViewById(R.id.edit_PH);
         editTextEC=dialogView.findViewById(R.id.edit_EC);

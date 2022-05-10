@@ -11,38 +11,12 @@ public class SignUpValidation {
     private String verifyPassword;
 
 
-    public SignUpValidation(String username, String email, String password, String verifyPassword) {
+    public SignUpValidation(String email, String password, String verifyPassword) {
 
-        this.username = username;
         this.email = email;
         this.password = password;
         this.verifyPassword = verifyPassword;
     }
-
-    //Username verification
-
-    public boolean isUsernameValid() {
-        return isUsernameNotEmpty() && UsernameContainsOnlyNumbersAndLetters()
-                && isUsernameLengthEnough() && isUsernameLengthLessThanAmount();
-    }
-
-    public boolean isUsernameNotEmpty() {
-        return !username.isEmpty();
-    }
-
-    public boolean UsernameContainsOnlyNumbersAndLetters() {
-        return username.matches("[a-zA-Z0-9]*");
-    }
-
-    public boolean isUsernameLengthEnough() {
-        return username.length() > 5;
-    }
-
-    public boolean isUsernameLengthLessThanAmount() {
-        return username.length() <= 25;
-    }
-
-    //Email verification
 
     public boolean isEmailValid() {
         return isEmailNotEmpty() && isEmailLengthEnough()

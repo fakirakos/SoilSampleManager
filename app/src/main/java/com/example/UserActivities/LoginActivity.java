@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.MapActivities.MapActivity;
 import com.example.soilsamplemanager.R;
 
 public class LoginActivity extends AppCompatActivity {
@@ -26,42 +27,29 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     private View progressView;
     private View loginFormView;
-    private TextView logginInTextView;
+    private TextView logInTextView;
     private UserLoginTask mAuthTask = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login); // Set up the login form.
-        etEmail = (EditText) findViewById(R.id.emailEditText);
-        logginInTextView = (TextView) findViewById(R.id.loadingTextView);
-        TextView signUpTextView = (TextView) findViewById(R.id.signUpTextView);
+        etEmail = findViewById(R.id.emailEditText);
+        logInTextView = findViewById(R.id.loadingTextView);
+        TextView signUpTextView = findViewById(R.id.signUpTextView);
         etEmail.requestFocus();
-        etPassword = (EditText) findViewById(R.id.passwordEditText);
-        etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+        etPassword = findViewById(R.id.passwordEditText);
+        etPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
             }
+            return false;
         });
 
-        Button manualLoginButton = (Button) findViewById(R.id.manualLoginButton);
-        manualLoginButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                attemptLogin();
-            }
-        });
-        signUpTextView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToSignUpActivity();
-            }
-        });
+        Button manualLoginButton = findViewById(R.id.manualLoginButton);
+        manualLoginButton.setOnClickListener(v -> attemptLogin());
+        signUpTextView.setOnClickListener(view -> goToSignUpActivity());
         loginFormView = findViewById(R.id.loginActivityConstrainLayout);
         progressView = findViewById(R.id.progressBar);
     }
@@ -149,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPreExecute() {
             loginFormView.setVisibility(View.INVISIBLE);
             progressView.setVisibility(View.VISIBLE);
-            logginInTextView.setVisibility(View.VISIBLE);
+            logInTextView.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -186,7 +174,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Something went wrong! Please try again", Toast.LENGTH_SHORT).show();
                 loginFormView.setVisibility(View.VISIBLE);
                 progressView.setVisibility(View.INVISIBLE);
-                logginInTextView.setVisibility(View.INVISIBLE);
+                logInTextView.setVisibility(View.INVISIBLE);
                 mAuthTask = null;
             }
         }
@@ -205,7 +193,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void goToMapsActivity() {
-        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MapActivity.class);
         startActivity(intent);
         finish();
     }
