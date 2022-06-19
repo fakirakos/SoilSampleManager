@@ -46,7 +46,7 @@ public class MapNameDialog extends DialogFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     String mapName=editTextMapName.getText().toString();
-                                    listener.applyField(mapName);
+                                    listener.applyDrawnField(mapName);
                                 }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -76,6 +76,6 @@ public class MapNameDialog extends DialogFragment {
 
 
     public interface DialogHolderListener{
-            void applyField(String mapName);
+            void applyDrawnField(String mapName);
         }
 }

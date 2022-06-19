@@ -23,13 +23,14 @@ public class MarkerDialog extends DialogFragment {
     private EditText editTextCalcium;
     private EditText editTextMagnesium;
 
+    //TODO add fragment to dialog, add the point clicked to newInstance method and update for new marker model
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.marker_save_dialog_layout, null);
         builder.setView(dialogView)
-                .setTitle("Save Map")
+                .setTitle("Save Marker")
                 .setPositiveButton("Done", (dialog, id) -> {
                     String markerPH=editTextPH.getText().toString().trim();
                     String markerEC=editTextEC.getText().toString().trim();

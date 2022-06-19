@@ -1,11 +1,11 @@
-package com.example.Models;
+package com.example.AgroFieldExports;
 
-import com.esri.arcgisruntime.geometry.Point;
+import com.google.android.gms.maps.model.LatLng;
 
-public class MarkerModel {
-
-    private Point markerLocation;
-    private String uniqueMarkerId;
+public class MarkerData {
+    long id;
+    LatLng markerPoint;
+    String uniqueMarkerId;
     private double markerPH;
     private double markerEC;
     private double markerCEC;
@@ -23,13 +23,13 @@ public class MarkerModel {
     private double markerSodium;
     private double markerSulfur;
 
-
-    public MarkerModel(Point markerLocation, String uniqueMarkerId, double markerPH,
-                       double markerEC, double markerCEC, double markerPbs, double markerOrganicMatter, double markerNitrogen,
-                       double markerIron, double markerZinc, double markerManganese, double markerCopper,
-                       double markerPotassium, double markerPhosphorus, double markerCalcium,
-                       double markerMagnesium, double markerSodium, double markerSulfur) {
-        this.markerLocation = markerLocation;
+    public MarkerData(long id, LatLng markerPoint, String uniqueMarkerId, double markerPH,
+                      double markerEC, double markerCEC, double markerPbs, double markerOrganicMatter,
+                      double markerNitrogen, double markerIron, double markerZinc, double markerManganese,
+                      double markerCopper, double markerPotassium, double markerPhosphorus,
+                      double markerCalcium, double markerMagnesium, double markerSodium, double markerSulfur) {
+        this.id = id;
+        this.markerPoint = markerPoint;
         this.uniqueMarkerId = uniqueMarkerId;
         this.markerPH = markerPH;
         this.markerEC = markerEC;
@@ -49,16 +49,24 @@ public class MarkerModel {
         this.markerSulfur = markerSulfur;
     }
 
-    public Point getMarkerLocation() {
-        return markerLocation;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public LatLng getMarkerPoint() {
+        return markerPoint;
+    }
+
+    public void setMarkerPoint(LatLng markerPoint) {
+        this.markerPoint = markerPoint;
     }
 
     public String getUniqueMarkerId() {
         return uniqueMarkerId;
-    }
-
-    public void setMarkerLocation(Point markerLocation) {
-        this.markerLocation = markerLocation;
     }
 
     public void setUniqueMarkerId(String uniqueMarkerId) {

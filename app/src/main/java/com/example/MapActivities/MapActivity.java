@@ -2,15 +2,21 @@ package com.example.MapActivities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -34,19 +40,27 @@ import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.example.GraphicBuilders.BorderBuilder;
 import com.example.GraphicBuilders.FieldBuilder;
+import com.example.MenusAndUtilities.AdapterRecycler;
 import com.example.MenusAndUtilities.DrawerUtil;
 import com.example.MenusAndUtilities.MapNameDialog;
 import com.example.MenusAndUtilities.MarkerDialog;
 import com.example.Models.FieldModel;
 import com.example.Models.MarkerModel;
+import com.example.RestfulWebService.APICallsImpl;
+import com.example.RestfulWebService.MapDTO;
 import com.example.soilsamplemanager.R;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MapActivity extends AppCompatActivity implements MapNameDialog.DialogHolderListener {
+
+public class MapActivity extends AppCompatActivity implements MapNameDialog.DialogHolderListener, AdapterRecycler.AdapterListener,
+                        APICallsImpl.FieldModelLoadedListener
+{
 
     private static PointCollection borderPoints;
     private static GraphicsOverlay tempOverlay;
@@ -68,7 +82,8 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
     FieldModel currentMapModel;
     private static boolean fieldDialog;
     private static String whichDialog;
-
+    String[] permission = {READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    ActivityResultLauncher<Intent> activityResultLauncher;
 
 
     @Override
@@ -82,23 +97,15 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         buttonOk = findViewById(R.id.buttonOk);
         buttonCancel = findViewById(R.id.buttonCancel);
-        buttonOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fieldDialog) {
-                    openDialog("Field");
-                } else {
-                    //TODO Crop Generation (check all borderpoints against field(?) then create inner polygon
-                }
+        buttonOk.setOnClickListener(view -> {
+            //TODO useless because crops model is gone from app, fix all checks for field or crops polygon
+            if (fieldDialog) {
+                openDialog("Field");
+            } else {
+                //TODO Crop Generation (check all borderpoints against field model then create inner polygon
             }
         });
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                cancelDrawing();
-
-                                            }
-                                        }
+        buttonCancel.setOnClickListener(view -> cancelDrawing()
         );
         setSupportActionBar(myToolbar);
         DrawerUtil.getDrawer(this, myToolbar);
@@ -134,7 +141,7 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
                 }
             }
         });
-        MapViewTouchListener mMapViewTouchListener = new MapViewTouchListener(this, mMapView);
+        MapActivity.MapViewTouchListener mMapViewTouchListener = new MapActivity.MapViewTouchListener(this, mMapView);
         mMapView.setOnTouchListener(mMapViewTouchListener);
 
 
@@ -150,6 +157,7 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
         buttonOk.setVisibility(View.GONE);
         tempOverlay.getGraphics().clear();
     }
+
 
     @Override
     protected void onPause() {
@@ -219,6 +227,34 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
         }
     }
 
+    public void requestWritePermission(){
+        if(Build.VERSION.SDK_INT>Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package.%s", new Object[]{getApplicationContext().getPackageName()})));
+                activityResultLauncher.launch(intent);
+            } catch (Exception e) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                activityResultLauncher.launch(intent);
+            }
+        }
+            else{
+                ActivityCompat.requestPermissions(MapActivity.this, permission, 30);
+            }
+        }
+
+        public boolean checkWritePermission(){
+            if(Build.VERSION.SDK_INT>Build.VERSION_CODES.R) {
+                return Environment.isExternalStorageManager();
+            }
+            else{
+                int writeCheck=ContextCompat.checkSelfPermission(getApplicationContext(),WRITE_EXTERNAL_STORAGE);
+                return writeCheck==PackageManager.PERMISSION_GRANTED;
+            }
+        }
+
     public void openDialog(String whichDialog) {
         switch (whichDialog) {
             case "Field":
@@ -233,6 +269,18 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
         }
     }
 
+    public void loadMapChoice(){
+        APICallsImpl apicall=new APICallsImpl(this);
+        //TODO fix after adding user login to get actual user uuid
+        apicall.getAllUserMaps("user02");
+    }
+
+    public void loadChosenMap(MapDTO chosenMap){
+        APICallsImpl apicall=new APICallsImpl(this);
+        apicall.getChosenUserMapInfo(chosenMap);
+    }
+
+    //TODO Test Method remove later
     private Point assignLocation(Point point) {
         myLocation = point;
         Log.i("MainActivity", "My device location is " + point.getX() + " " + point.getY());
@@ -289,7 +337,7 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
 
 
     @Override
-    public void applyField(String mapName) {
+    public void applyDrawnField(String mapName) {
         String uniqueFieldId = UUID.randomUUID().toString();
         currentMapModel = new FieldModel(getBorderPoints(), uniqueFieldId, mapName);
         myPolygonBuilder = new FieldBuilder(getBorderPoints());
@@ -304,20 +352,46 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
     }
 
 
+    public void loadField(FieldModel inputField){
+        Toast.makeText(getApplicationContext(), inputField.getUserChosenName() , Toast.LENGTH_LONG).show();
+        this.currentMapModel=inputField;
+        myPolygonBuilder=new FieldBuilder(inputField.getPolygonPoints());
+        tempOverlay.getGraphics().add(myPolygonBuilder.getTempPolygonGraphic());
+        if(inputField.getMarkerList().size()>0){
+            for(MarkerModel marker:inputField.getMarkerList()){
+                SimpleMarkerSymbol myMarker = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10);
+                Graphic markerGraphic = new Graphic(marker.getMarkerLocation(), myMarker);
+                markerOverlay.getGraphics().add(markerGraphic);
+            }
+
+        }
+    }
+
+
     //Creates and adds the point marker to the map
-    //TODO identify point on click and create callout with dialog information
-    public void markerMaker(String markerPH, String markerEC, String markerNitrogen, String markerPotassium, String markerPhosphorus, String markerCalcium, String markerMagnesium) {
+    //TODO finish marker creating dialog and add to long press listener
+    public void markerMaker(double markerPH, double markerEC, double markerCEC, double markerPbs,
+                            double markerOrganicMatter, double markerNitrogen, double markerIron,
+                            double markerZinc, double markerManganese, double markerCopper,
+                            double markerPotassium, double markerPhosphorus, double markerCalcium,
+                            double markerMagnesium, double markerSodium, double markerSulfur) {
         String uniqueMarkerId = UUID.randomUUID().toString();
-        currentMapModel.addMarker(new MarkerModel(markerClickLocation, uniqueMarkerId, markerPH, markerEC, markerNitrogen, markerPotassium, markerPhosphorus, markerCalcium, markerMagnesium));
+        currentMapModel.addMarker(new MarkerModel(markerClickLocation, uniqueMarkerId, markerPH, markerEC,
+                markerCEC,markerPbs, markerOrganicMatter, markerNitrogen, markerIron, markerZinc,
+                markerManganese, markerCopper, markerPotassium, markerPhosphorus, markerCalcium,
+                markerMagnesium, markerSodium, markerSulfur));
         SimpleMarkerSymbol myMarker = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 10);
         Graphic markerGraphic = new Graphic(markerClickLocation, myMarker);
         markerOverlay.getGraphics().add(markerGraphic);
     }
 
+    //TODO check if actually needed
     public static boolean isFieldDialog() {
+
         return fieldDialog;
     }
 
+    //TODO probably useless, check if needed
     public static void setFieldDialog(boolean fieldDialog) {
         MapActivity.fieldDialog = fieldDialog;
     }
@@ -349,38 +423,72 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
             // identify graphics on the graphics overlay
             final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = mMapView.identifyGraphicsOverlayAsync(markerOverlay, screenPoint, 10.0, false, 2);
 
-            identifyGraphic.addDoneListener(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        IdentifyGraphicsOverlayResult grOverlayResult = identifyGraphic.get();
-                        // get the list of graphics returned by identify graphic overlay
-                        List<Graphic> graphic = grOverlayResult.getGraphics();
-                        // get size of list in results
-                        int identifyResultSize = graphic.size();
-                        if (!graphic.isEmpty()) {
-                            if (identifyResultSize > 1) {
-                                Toast.makeText(getApplicationContext(), "Touched multiple markers, Zoom the map in and try again", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Point temp = (Point) graphic.get(0).getGeometry();
-                                Point wgs84Point = (Point) GeometryEngine.project(temp, SpatialReferences.getWgs84());
-                                for (MarkerModel tempMarker : currentMapModel.getMarkerList()) {
-                                    if(tempMarker.getMarkerLocation().equals(wgs84Point)){
-                                        Toast.makeText(getApplicationContext(), tempMarker.getUniqueMarkerId(), Toast.LENGTH_LONG);
-                                    }
+            identifyGraphic.addDoneListener(() -> {
+                try {
+                    IdentifyGraphicsOverlayResult grOverlayResult = identifyGraphic.get();
+                    // get the list of graphics returned by identify graphic overlay
+                    List<Graphic> graphic = grOverlayResult.getGraphics();
+                    // get size of list in results
+                    int identifyResultSize = graphic.size();
+                    if (!graphic.isEmpty()) {
+                        if (identifyResultSize > 1) {
+                            Toast.makeText(getApplicationContext(), "Touched multiple markers, Zoom the map in and try again", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Point temp = (Point) graphic.get(0).getGeometry();
+                            Point wgs84Point = (Point) GeometryEngine.project(temp, SpatialReferences.getWgs84());
+                            Log.v("point clicked", wgs84Point.getX() +","+wgs84Point.getY());
+                            for (MarkerModel tempMarker : currentMapModel.getMarkerList()) {
+                                if (tempMarker.getMarkerLocation().equals(wgs84Point)) {
+                                    Log.v("", "comparison started");
+                                    Toast.makeText(getApplicationContext(), tempMarker.getUniqueMarkerId(), Toast.LENGTH_LONG).show();
+                                    //TODO show marker Popup
                                 }
                             }
                         }
-                    } catch (InterruptedException | ExecutionException ie) {
-                        ie.printStackTrace();
                     }
-
+                } catch (InterruptedException | ExecutionException ie) {
+                    ie.printStackTrace();
                 }
+
             });
 
             return super.onSingleTapConfirmed(e);
         }
+
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+
+            final ListenableFuture<IdentifyGraphicsOverlayResult> identifyGraphic = mMapView.identifyGraphicsOverlayAsync(markerOverlay, screenPoint, 10.0, false, 2);
+
+            identifyGraphic.addDoneListener(() -> {
+                try {
+                    IdentifyGraphicsOverlayResult grOverlayResult = identifyGraphic.get();
+                    // get the list of graphics returned by identify graphic overlay
+                    List<Graphic> graphic = grOverlayResult.getGraphics();
+                    // get size of list in results
+                    int identifyResultSize = graphic.size();
+                    if (!graphic.isEmpty()) {
+                        if (identifyResultSize > 1) {
+                            Toast.makeText(getApplicationContext(), "Touched at least one marker, touch elsewhere or zoom the map in and try again", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Point temp = (Point) graphic.get(0).getGeometry();
+                            Point wgs84Point = (Point) GeometryEngine.project(temp, SpatialReferences.getWgs84());
+                            //TODO call dialog to make new marker and pass wgs84Point for markerMaker method
+
+                        }
+
+                    }
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                } catch (ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+            });
+        }
     }
+
 
     public boolean isFieldModelInitialized(){
         if(currentMapModel!=null)
@@ -395,6 +503,9 @@ public class MapActivity extends AppCompatActivity implements MapNameDialog.Dial
     }
 
     public static Point getMyLocation() {
+
         return myLocation;
     }
+
+
 }

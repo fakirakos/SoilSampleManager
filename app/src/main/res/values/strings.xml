@@ -8,7 +8,27 @@
     <string name="about">About</string>
     <string name="help">Help</string>
     <string name="mapCreateField">Create New Field</string>
-    <string name="mapDesignateCrop">Designate Crops</string>
+    <string name="mockLoad">Load a Precreated Map</string>
     <string name="mapCreateMarker">Add A Marker</string>
     <string name="signUp">Register an account</string>
+    <string name="BASE_URL">http://localhost:8080/api</string>
+    <string name="email">Email</string>
+    <string name="enter_your_email">Enter your Email</string>
+    <string name="enter_your_password">Enter your Password</string>
+    <string name="password">Password</string>
+    <string name="you_don_t_have_an_account_sign_up">You don\'t have an account? Sign Up!</string>
+    <string name="login">LOGIN</string>
+    <string name="loggin_in">Loggin in...</string>
+    <string name="singin_up_and_loggin_in">Singin up and loggin in</string>
+    <string name="sheetLandName">Lands</string>
+    <string name="mockExport">Export a Mock Agrofields xls</string>
+    <string name="verify_your_password">Verify your Password</string>
+    <string name="i_already_have_an_account">I already have an account</string>
+    <string name="username">Username</string>
+    <string name="register_and_login">Register and Login</string>
+    <string name="element_text">Element</string>
+    <string name="grid_layout_manager">Grid Layout Manager</string>
+    <string name="linear_layout_manager">Linear Layout Manager</string>
+    <string name="choose_your_map">Choose Your Map</string>
+
 </resources>

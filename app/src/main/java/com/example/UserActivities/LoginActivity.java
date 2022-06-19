@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     private View progressView;
     private View loginFormView;
     private TextView logInTextView;
-    private UserLoginTask mAuthTask = null;
+//    private UserLoginTask mAuthTask = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +41,14 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.passwordEditText);
         etPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                attemptLogin();
+//                attemptLogin();
                 return true;
             }
             return false;
         });
 
         Button manualLoginButton = findViewById(R.id.manualLoginButton);
-        manualLoginButton.setOnClickListener(v -> attemptLogin());
+//        manualLoginButton.setOnClickListener(v -> attemptLogin());
         signUpTextView.setOnClickListener(view -> goToSignUpActivity());
         loginFormView = findViewById(R.id.loginActivityConstrainLayout);
         progressView = findViewById(R.id.progressBar);
@@ -60,130 +60,130 @@ public class LoginActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    private void attemptLogin() {
-        hideKeyboard();
-        if (mAuthTask != null) {
-            return;
-        }
-
-        // Reset errors.
-        etEmail.setError(null);
-        etPassword.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = etEmail.getText().toString();
-        String password = etPassword.getText().toString();
-        user = new LoginValidation(email, password);
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid email address.
-
-        if (!user.isEmailNotEmpty()) {
-            etEmail.setError("This field is required");
-            focusView = etEmail;
-            cancel = true;
-        } else if (!user.isEmailValid()) {
-            etEmail.setError("Please enter a valid email.");
-            focusView = etEmail;
-            cancel = true;
-        }
-
-
-        // Check for a valid password, if the user entered one.
-        if (!user.isPasswordNotEmpty()) {
-            etPassword.setError("This field is required");
-            focusView = etPassword;
-            cancel = true;
-        } else if (!user.isPasswordLengthEnough()) {
-            etPassword.setError("Your password should be at least 6 characters");
-            focusView = etPassword;
-            cancel = true;
-        }
-        //TODO check database for user validation
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-
-
-        }
-    }
+//    private void attemptLogin() {
+//        hideKeyboard();
+//        if (mAuthTask != null) {
+//            return;
+//        }
+//
+//        // Reset errors.
+//        etEmail.setError(null);
+//        etPassword.setError(null);
+//
+//        // Store values at the time of the login attempt.
+//        String email = etEmail.getText().toString();
+//        String password = etPassword.getText().toString();
+//        user = new LoginValidation(email, password);
+//        boolean cancel = false;
+//        View focusView = null;
+//
+//        // Check for a valid email address.
+//
+//        if (!user.isEmailNotEmpty()) {
+//            etEmail.setError("This field is required");
+//            focusView = etEmail;
+//            cancel = true;
+//        } else if (!user.isEmailValid()) {
+//            etEmail.setError("Please enter a valid email.");
+//            focusView = etEmail;
+//            cancel = true;
+//        }
+//
+//
+//        // Check for a valid password, if the user entered one.
+//        if (!user.isPasswordNotEmpty()) {
+//            etPassword.setError("This field is required");
+//            focusView = etPassword;
+//            cancel = true;
+//        } else if (!user.isPasswordLengthEnough()) {
+//            etPassword.setError("Your password should be at least 6 characters");
+//            focusView = etPassword;
+//            cancel = true;
+//        }
+//        //TODO check database for user validation
+//
+//        if (cancel) {
+//            // There was an error; don't attempt login and focus the first
+//            // form field with an error.
+//            focusView.requestFocus();
+//        } else {
+//
+//            // Show a progress spinner, and kick off a background task to
+//            // perform the user login attempt.
+//
+//            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask.execute((Void) null);
+//
+//
+//        }
+//    }
 
 
     /**
      * Represents an asynchronous login task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            loginFormView.setVisibility(View.INVISIBLE);
-            progressView.setVisibility(View.VISIBLE);
-            logInTextView.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-
-
-            try {
-                LoginController loginController = new LoginController();
-                if (loginController.emailExists(mEmail)) {
-                    if (loginController.emailMatchesPassword(mEmail, mPassword)) {
-                        //TODO: Login
-
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Your email and password do not match.", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(LoginActivity.this, "The email " + mEmail + " do not exist.", Toast.LENGTH_SHORT).show();
-                }
-
-            } catch (Exception e) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            if (success) {
-
-                goToMapsActivity();
-
-            } else {
-                Toast.makeText(LoginActivity.this, "Something went wrong! Please try again", Toast.LENGTH_SHORT).show();
-                loginFormView.setVisibility(View.VISIBLE);
-                progressView.setVisibility(View.INVISIBLE);
-                logInTextView.setVisibility(View.INVISIBLE);
-                mAuthTask = null;
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-        }
-    }
+//    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+//
+//        private final String mEmail;
+//        private final String mPassword;
+//
+//        UserLoginTask(String email, String password) {
+//            mEmail = email;
+//            mPassword = password;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            loginFormView.setVisibility(View.INVISIBLE);
+//            progressView.setVisibility(View.VISIBLE);
+//            logInTextView.setVisibility(View.VISIBLE);
+//        }
+//Override
+//        @Override
+//        protected Boolean doInBackground(Void... params) {
+//
+//
+//            try {
+//                LoginController loginController = new LoginController();
+//                if (loginController.emailExists(mEmail)) {
+//                    if (loginController.emailMatchesPassword(mEmail, mPassword)) {
+//                        //TODO: Login
+//
+//                    } else {
+//                        Toast.makeText(LoginActivity.this, "Your email and password do not match.", Toast.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    Toast.makeText(LoginActivity.this, "The email " + mEmail + " do not exist.", Toast.LENGTH_SHORT).show();
+//                }
+//
+//            } catch (Exception e) {
+//                return false;
+//            }
+//
+//            return true;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(final Boolean success) {
+//            if (success) {
+//
+//                goToMapsActivity();
+//
+//            } else {
+//                Toast.makeText(LoginActivity.this, "Something went wrong! Please try again", Toast.LENGTH_SHORT).show();
+//                loginFormView.setVisibility(View.VISIBLE);
+//                progressView.setVisibility(View.INVISIBLE);
+//                logInTextView.setVisibility(View.INVISIBLE);
+//                mAuthTask = null;
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            mAuthTask = null;
+//        }
+//    }
 
     public void goToSignUpActivity() {
         Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);

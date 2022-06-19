@@ -3,4 +3,10 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="common_google_signin_btn_text_dark_default">#0288D1</color>
+    <color name="hockeyapp_background_light">#FFFFF7</color>
+    <color name="common_google_signin_btn_text_dark_pressed">#00574B</color>
+    <color name="hockeyapp_text_white">#F7F7FF</color>
+    <color name="hockeyapp_text_light">#F6F6FF</color>
+
 </resources>

@@ -27,7 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
          * Keep track of the sign up task to ensure we can cancel it if requested.
          */
         SignUpValidation user;
-        private UserRegisterTask mAuthTask = null;
+//        private UserRegisterTask mAuthTask = null;
         private ConstraintLayout mRegisterForm = findViewById(R.id.registerFormView);
         private EditText email;
         private EditText password;
@@ -69,9 +69,9 @@ public class SignUpActivity extends AppCompatActivity {
          */
         private void attemptRegister() {
             hideKeyboard();
-            if (mAuthTask != null) {
-                return;
-            }
+//            if (mAuthTask != null) {
+//                return;
+//            }
 
             // Reset errors.
             email.setError(null);
@@ -132,8 +132,8 @@ public class SignUpActivity extends AppCompatActivity {
                 // Show a progress spinner, and kick off a background task to
                 // perform the user login attempt.
 
-                mAuthTask = new UserRegisterTask(semail, spassword);
-                mAuthTask.execute((Void) null);
+//                mAuthTask = new UserRegisterTask(semail, spassword);
+//                mAuthTask.execute((Void) null);
             }
         }
 
@@ -143,71 +143,71 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 
-        /**
-         * Represents an asynchronous registration task used to authenticate
-         * the user.
-         */
-        public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
-
-            private final String mEmail;
-            private final String mPassword;
-
-            UserRegisterTask(String email, String password) {
-                mEmail = email;
-                mPassword = password;
-            }
-
-
-            /**
-             * Shows the progress UI and hides the registration form.
-             */
-            @Override
-            protected void onPreExecute() {
-                mProgressView.setVisibility(View.VISIBLE);
-                loadingTextView.setVisibility(View.VISIBLE);
-                mRegisterForm.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            protected Boolean doInBackground(Void... params) {
-
-
-                try {
-                    UserModel accountModel = new UserModel(UUID.randomUUID().toString(),mEmail,mPassword);
-                    UserController userController = new UserController();
-                    userController.createUser(accountModel);
-                } catch (Exception e) {
-
-                    return false;
-                }
-
-
-
-                return true;
-            }
-
-            @Override
-            protected void onPostExecute(final Boolean success) {
-
-                if (success) {
-                    goToMapsActivity();
-                    finish();
-                } else{
-                    Toast.makeText(SignUpActivity.this, "Something went wrong please try again", Toast.LENGTH_SHORT).show();
-                    mProgressView.setVisibility(View.INVISIBLE);
-                    loadingTextView.setVisibility(View.INVISIBLE);
-                    mRegisterForm.setVisibility(View.VISIBLE);
-                    mAuthTask = null;
-                }
-            }
-
-
-
-            @Override
-            protected void onCancelled() {
-                mAuthTask = null;
-            }
-        }
+//        /**
+//         * Represents an asynchronous registration task used to authenticate
+//         * the user.
+//         */
+//        public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
+//
+//            private final String mEmail;
+//            private final String mPassword;
+//
+//            UserRegisterTask(String email, String password) {
+//                mEmail = email;
+//                mPassword = password;
+//            }
+//
+//
+//            /**
+//             * Shows the progress UI and hides the registration form.
+//             */
+//            @Override
+//            protected void onPreExecute() {
+//                mProgressView.setVisibility(View.VISIBLE);
+//                loadingTextView.setVisibility(View.VISIBLE);
+//                mRegisterForm.setVisibility(View.INVISIBLE);
+//            }
+//
+//            @Override
+//            protected Boolean doInBackground(Void... params) {
+//
+//
+//                try {
+//                    UserModel accountModel = new UserModel(UUID.randomUUID().toString(),mEmail,mPassword);
+//                    UserController userController = new UserController();
+//                    userController.createUser(accountModel);
+//                } catch (Exception e) {
+//
+//                    return false;
+//                }
+//
+//
+//
+//                return true;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(final Boolean success) {
+//
+//                if (success) {
+//                    goToMapsActivity();
+//                    finish();
+//                } else{
+//                    Toast.makeText(SignUpActivity.this, "Something went wrong please try again", Toast.LENGTH_SHORT).show();
+//                    mProgressView.setVisibility(View.INVISIBLE);
+//                    loadingTextView.setVisibility(View.INVISIBLE);
+//                    mRegisterForm.setVisibility(View.VISIBLE);
+//                    mAuthTask = null;
+//                }
+//            }
+//
+//
+//
+//            @Override
+//            protected void onCancelled() {
+//                mAuthTask = null;
+//            }
+//        }
         private void goToMapsActivity() {
             Intent intent = new Intent(getApplicationContext(), MapActivity.class);
             startActivity(intent);

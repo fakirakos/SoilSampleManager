@@ -185,7 +185,6 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingStart="18dp"
-            android:src="@drawable/facebooklogin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -205,7 +204,6 @@
             android:contentDescription="@android:string/untitled"
             android:paddingEnd="18dp"
             android:paddingStart="18dp"
-            android:src="@drawable/googlelogin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -214,3 +212,6 @@
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
+
+    <!--            android:src="@drawable/googlelogin" in imageButton googleLoginButton
+                    android:src=@drawable/facebooklogin in imageButton facebookLoginButton-->
